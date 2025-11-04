@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Attendance Check</title>
+    <style>
+      body { font-family: Arial, sans-serif; text-align:center; padding:40px; }
+      input { padding:8px; width:80%; max-width:300px; margin:10px 0; }
+      button { padding:10px 20px; }
+      #result { margin-top:20px; font-weight:bold; }
+    </style>
+  </head>
+  <body>
+    <h2>Attendance Verification</h2>
+    <p>Enter your full name to check in:</p>
+    <input id="name" placeholder="Full name">
+    <br>
+    <button onclick="verify()">Submit</button>
+    <p id="status">Checking GPS access…</p>
+    <p id="result"></p>
+
+    <script>
+      const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyFa8JqI0PUsI46Vli0EqzZPXDf8VsC5jMex-tUZcNQvTf5fdpS7oa64209ShyfULY/exec";
+
+      function verify() {
+        const name = document.getElementById("name").value.trim();
+        if (!name) return alert("Please enter your name.");
+
+        if (navigator.geolocation) {
+          document.getElementById("status").innerText = "Getting location...";
+          navigator.geolocation.getCurrentPosition(pos => {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+            fetch(`${WEB_APP_URL}?name=${encodeURIComponent(name)}&lat=${lat}&lon=${lon}`)
+              .then(r => r.text())
+              .then(txt => {
+                document.getElementById("status").innerText = "";
+                document.getElementById("result").innerText = txt;
+              });
+          }, () => alert("Location access denied."));
+        } else {
+          alert("Geolocation not supported.");
+        }
+      }
+    </script>
+  </body>
+</html>
