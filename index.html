@@ -12,7 +12,7 @@
   </head>
   <body>
     <h2>Attendance Verification</h2>
-    <p>Enter your full name to check in:</p>
+    <p>Enter your full name (Last, First Middle) to check in:</p>
     <input id="name" placeholder="Full name">
     <br>
     <button onclick="verify()">Submit</button>
@@ -20,7 +20,7 @@
     <p id="result"></p>
 
     <script>
-      const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwdkZjwz_OeNeJS_-715OKihQ2AT4Nm4-csA3NVJgjpjaqVLryYDsadDu3dDn0DhWyjqA/exec";
+      const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwP53YyRgXxEMEr-GyRxYgHWxZeGGMzn6esEHnAliLpDHO08FgyVlOzPw1kcFJkOa7T/exec";
 
       function verify() {
         const name = document.getElementById("name").value.trim();
@@ -70,6 +70,7 @@
     </script>
   </body>
 </html>
+
 
 
 
