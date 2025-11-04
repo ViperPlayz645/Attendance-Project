@@ -20,7 +20,7 @@
     <p id="result"></p>
 
     <script>
-      const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyeHdUXN4tzDaASlkZv15nAXWH3cQbW6FOR5vSabGzkQbv_K62b7r8HDsWuRumdlpgtGw/exec";
+      const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxj1amDDHnevps6u0Cc-_6N2axlMFoxjJp0hy3EDnvPKDGdBrHOoaLaZVwBn5AEVoozYA/exec";
 
       function verify() {
         const name = document.getElementById("name").value.trim();
@@ -28,6 +28,7 @@
 
         if (navigator.geolocation) {
           document.getElementById("status").innerText = "Getting location...";
+          console.log(`Latitude: ${pos.coords.latitude}, Longitude: ${pos.coords.longitude}`);
           navigator.geolocation.getCurrentPosition(
             pos => {
               const lat = pos.coords.latitude;
@@ -69,6 +70,7 @@
     </script>
   </body>
 </html>
+
 
 
 
