@@ -28,16 +28,40 @@
 
         if (navigator.geolocation) {
           document.getElementById("status").innerText = "Getting location...";
-          navigator.geolocation.getCurrentPosition(pos => {
-            const lat = pos.coords.latitude;
-            const lon = pos.coords.longitude;
-            fetch(`${WEB_APP_URL}?name=${encodeURIComponent(name)}&lat=${lat}&lon=${lon}`)
+          navigator.geolocation.getCurrentPosition(
+            pos => {
+              const lat = pos.coords.latitude;
+              const lon = pos.coords.longitude;
+              document.getElementById("status").innerText = `Location found: ${lat.toFixed(5)}, ${lon.toFixed(5)} — verifying...`;
+    
+              fetch(`${WEB_APP_URL}?name=${encodeURIComponent(name)}&lat=${lat}&lon=${lon}`)
               .then(r => r.text())
               .then(txt => {
                 document.getElementById("status").innerText = "";
                 document.getElementById("result").innerText = txt;
+              })
+              .catch(err => {
+                document.getElementById("status").innerText = "";
+                document.getElementById("result").innerText = "⚠️ Server error: " + err.message;
               });
-          }, () => alert("Location access denied."));
+          },
+          error => {
+              switch(error.code) {
+                  case error.PERMISSION_DENIED:
+                  document.getElementById("status").innerText = "❌ Permission denied. Please allow location access.";
+                  break;
+              case error.POSITION_UNAVAILABLE:
+                  document.getElementById("status").innerText = "⚠️ Location unavailable.";
+                  break;
+              case error.TIMEOUT:
+                  document.getElementById("status").innerText = "⏱️ Location request timed out.";
+                  break;
+              default:
+                  document.getElementById("status").innerText = "❌ Unknown error getting location.";
+            }
+          },
+          { timeout: 10000 } // 10 seconds
+        );
         } else {
           alert("Geolocation not supported.");
         }
@@ -45,3 +69,4 @@
     </script>
   </body>
 </html>
+
