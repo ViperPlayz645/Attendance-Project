@@ -2,63 +2,141 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Attendance Check</title>
+  <title>Attendance Verification</title>
+
   <style>
-    body { font-family: Arial, sans-serif; text-align:center; padding:40px; }
-    input, select { padding:8px; width:80%; max-width:300px; margin:10px 0; }
-    button { padding:10px 20px; margin-top:10px; }
-    #status, #result { margin-top:20px; font-weight:bold; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f8fa;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+      padding: 40px 20px;
+    }
+
+    h1 {
+      font-size: 32px;
+      margin-bottom: 10px;
+      color: #222;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 20px;
+      text-align: left;
+    }
+
+    .input-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+
+    input, select {
+      padding: 12px;
+      width: 300px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    #otherProjectInput {
+      display: none;
+    }
+
+    button {
+      margin-top: 30px;
+      padding: 12px 30px;
+      background: #1a73e8;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #155bb8;
+    }
+
+    #status, #result {
+      margin-top: 25px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    #result {
+      color: #333;
+    }
   </style>
 </head>
 
 <body>
-  <h1>Attendance Verification</h1>
-  <p>Enter your full name:</p>
-  <input id="nameInput" type="text" placeholder="Full name" />
+  <div class="container">
 
-  <label><b>Select project you will be working on:</b></label>
-  <select id="projectSelect" onchange="toggleOtherProject()">
-    <option value="" disabled selected>Select project...</option>
-    <option value="Data Team">Data Team</option>
-    <option value="Roll Cage">Roll Cage</option>
-    <option value="Setup Conversion Table">Setup Conversion Table</option>
-    <option value="FSAE Projects">FSAE Projects</option>
-    <option value="Inventory">Inventory</option>
-    <option value="MG Projects">MG Projects</option>
-    <option value="Engine Storage Mount">Engine Storage Mount</option>
-    <option value="Sponsorship Panels">Sponsorship Panels</option>
-    <option value="New Trailer">New Trailer</option>
-    <option value="Wiring Cabinet / Rack">Wiring Cabinet / Rack</option>
-    <option value="Info-Session on Kart Set Up and Change">Info-Session on Kart Set Up and Change</option>
-    <option value="Other">Other...</option>
-  </select>
+    <h1>Attendance Verification</h1>
 
-  <input id="otherProjectInput" type="text" placeholder="Enter project name..." style="display:none;" />
+    <p>Enter your full name:</p>
 
-  <button id="submitBtn" onclick="verify()">Submit</button>
+    <div class="input-row">
+      <input id="nameInput" type="text" placeholder="Full name">
+    </div>
 
-  <p id="status">Checking GPS access…</p>
-  <p id="result"></p>
+    <div class="input-row">
+      <label>Select project you will be working on:</label>
+      <select id="projectSelect" onchange="toggleOtherProject()">
+        <option value="" disabled selected>Select project...</option>
+        <option value="Data Team">Data Team</option>
+        <option value="Roll Cage">Roll Cage</option>
+        <option value="Setup Conversion Table">Setup Conversion Table</option>
+        <option value="FSAE Projects">FSAE Projects</option>
+        <option value="Inventory">Inventory</option>
+        <option value="MG Projects">MG Projects</option>
+        <option value="Engine Storage Mount">Engine Storage Mount</option>
+        <option value="Sponsorship Panels">Sponsorship Panels</option>
+        <option value="New Trailer">New Trailer</option>
+        <option value="Wiring Cabinet / Rack">Wiring Cabinet / Rack</option>
+        <option value="Info-Session on Kart Set Up and Change">Info-Session on Kart Set Up and Change</option>
+        <option value="Other">Other...</option>
+      </select>
+    </div>
+
+    <div class="input-row">
+      <input id="otherProjectInput" type="text" placeholder="Enter project name">
+    </div>
+
+    <button onclick="verify()">Submit</button>
+
+    <p id="status">Checking GPS access…</p>
+    <p id="result"></p>
+  </div>
+
 
 <script>
-  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbydMr7-ErSauF0c6AxHrp70hOo4rd2l8JQaTw0YdtHHGS0nb7JylSkfzwgvOBgwl-LDnQ/exec"; // REPLACE
+  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbydMr7-ErSauF0c6AxHrp70hOo4rd2l8JQaTw0YdtHHGS0nb7JylSkfzwgvOBgwl-LDnQ/exec"; // script url
 
   function toggleOtherProject() {
-    const select = document.getElementById("projectSelect");
     const otherInput = document.getElementById("otherProjectInput");
-    otherInput.style.display = (select.value === "Other") ? "block" : "none";
+    otherInput.style.display = (document.getElementById("projectSelect").value === "Other") ? "block" : "none";
   }
 
   function verify() {
     const name = document.getElementById("nameInput").value.trim();
-    const projectSelected = document.getElementById("projectSelect").value;
-    const projectOther = document.getElementById("otherProjectInput").value.trim();
-    const project = (projectSelected === "Other") ? projectOther : projectSelected;
+    const selected = document.getElementById("projectSelect").value;
+    const other = document.getElementById("otherProjectInput").value.trim();
+    const project = (selected === "Other") ? other : selected;
 
     if (!name) return alert("Please enter your name.");
     if (!project) return alert("Please select or enter a project.");
-
-    if (!navigator.geolocation) return alert("Geolocation is not supported.");
 
     document.getElementById("status").innerText = "Getting location...";
 
@@ -78,30 +156,13 @@
         });
 
     }, err => {
-      document.getElementById("status").innerText =
-        (err.code === 1) ? "❌ Location permission denied." :
-        (err.code === 2) ? "⚠️ Location unavailable." :
-        "❌ Error getting location."
+      const msg = (err.code === 1) ? "❌ Location permission denied."
+               : (err.code === 2) ? "⚠️ Location unavailable."
+               : "❌ Error getting location.";
+      document.getElementById("status").innerText = msg;
     });
   }
 </script>
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
