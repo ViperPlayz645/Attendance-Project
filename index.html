@@ -1,75 +1,95 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <title>Attendance Check</title>
-    <style>
-      body { font-family: Arial, sans-serif; text-align:center; padding:40px; }
-      input { padding:8px; width:80%; max-width:300px; margin:10px 0; }
-      button { padding:10px 20px; }
-      #result { margin-top:20px; font-weight:bold; }
-    </style>
-  </head>
-  <body>
-    <h2>Attendance Verification</h2>
-    <p>Enter your full name (Last, First Middle) to check in:</p>
-    <input id="name" placeholder="Full name">
-    <br>
-    <button onclick="verify()">Submit</button>
-    <p id="status">Checking GPS access…</p>
-    <p id="result"></p>
+<head>
+  <meta charset="UTF-8">
+  <title>Attendance Check</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align:center; padding:40px; }
+    input, select { padding:8px; width:80%; max-width:300px; margin:10px 0; }
+    button { padding:10px 20px; margin-top:10px; }
+    #status, #result { margin-top:20px; font-weight:bold; }
+  </style>
+</head>
 
-    <script>
-      const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxflPUIPE6sovYPjgjTEjIJc7bFPjcvMlBJmPmnrEFIrwhe25IAj0z1VX6ueq05VFa-yQ/exec";
+<body>
+  <h1>Attendance Verification</h1>
+  <p>Enter your full name:</p>
+  <input id="nameInput" type="text" placeholder="Full name" />
 
-      function verify() {
-        const name = document.getElementById("name").value.trim();
-        if (!name) return alert("Please enter your name.");
+  <label><b>Select project you will be working on:</b></label>
+  <select id="projectSelect" onchange="toggleOtherProject()">
+    <option value="" disabled selected>Select project...</option>
+    <option value="Data Team">Data Team</option>
+    <option value="Roll Cage">Roll Cage</option>
+    <option value="Setup Conversion Table">Setup Conversion Table</option>
+    <option value="FSAE Projects">FSAE Projects</option>
+    <option value="Inventory">Inventory</option>
+    <option value="MG Projects">MG Projects</option>
+    <option value="Engine Storage Mount">Engine Storage Mount</option>
+    <option value="Sponsorship Panels">Sponsorship Panels</option>
+    <option value="New Trailer">New Trailer</option>
+    <option value="Wiring Cabinet / Rack">Wiring Cabinet / Rack</option>
+    <option value="Info-Session on Kart Set Up and Change">Info-Session on Kart Set Up and Change</option>
+    <option value="Other">Other...</option>
+  </select>
 
-        if (navigator.geolocation) {
-          document.getElementById("status").innerText = "Getting location...";
-          navigator.geolocation.getCurrentPosition(
-            pos => {
-              const lat = pos.coords.latitude;
-              const lon = pos.coords.longitude;
-              console.log(`Latitude: ${pos.coords.latitude}, Longitude: ${pos.coords.longitude}`);
-              document.getElementById("status").innerText = `Location found: ${lat.toFixed(5)}, ${lon.toFixed(5)} — verifying...`;
-    
-              fetch(`${WEB_APP_URL}?name=${encodeURIComponent(name)}&lat=${lat}&lon=${lon}`)
-              .then(r => r.text())
-              .then(txt => {
-                document.getElementById("status").innerText = "";
-                document.getElementById("result").innerText = txt;
-              })
-              .catch(err => {
-                document.getElementById("status").innerText = "";
-                document.getElementById("result").innerText = "⚠️ Server error: " + err.message;
-              });
-          },
-          error => {
-              switch(error.code) {
-                  case error.PERMISSION_DENIED:
-                  document.getElementById("status").innerText = "❌ Permission denied. Please allow location access.";
-                  break;
-              case error.POSITION_UNAVAILABLE:
-                  document.getElementById("status").innerText = "⚠️ Location unavailable.";
-                  break;
-              case error.TIMEOUT:
-                  document.getElementById("status").innerText = "⏱️ Location request timed out.";
-                  break;
-              default:
-                  document.getElementById("status").innerText = "❌ Unknown error getting location.";
-            }
-          },
-          { timeout: 10000 } // 10 seconds
-        );
-        } else {
-          alert("Geolocation not supported.");
-        }
-      }
-    </script>
-  </body>
+  <input id="otherProjectInput" type="text" placeholder="Enter project name..." style="display:none;" />
+
+  <button id="submitBtn" onclick="verify()">Submit</button>
+
+  <p id="status">Checking GPS access…</p>
+  <p id="result"></p>
+
+<script>
+  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbydMr7-ErSauF0c6AxHrp70hOo4rd2l8JQaTw0YdtHHGS0nb7JylSkfzwgvOBgwl-LDnQ/exec"; // REPLACE
+
+  function toggleOtherProject() {
+    const select = document.getElementById("projectSelect");
+    const otherInput = document.getElementById("otherProjectInput");
+    otherInput.style.display = (select.value === "Other") ? "block" : "none";
+  }
+
+  function verify() {
+    const name = document.getElementById("nameInput").value.trim();
+    const projectSelected = document.getElementById("projectSelect").value;
+    const projectOther = document.getElementById("otherProjectInput").value.trim();
+    const project = (projectSelected === "Other") ? projectOther : projectSelected;
+
+    if (!name) return alert("Please enter your name.");
+    if (!project) return alert("Please select or enter a project.");
+
+    if (!navigator.geolocation) return alert("Geolocation is not supported.");
+
+    document.getElementById("status").innerText = "Getting location...";
+
+    navigator.geolocation.getCurrentPosition(pos => {
+      const lat = pos.coords.latitude;
+      const lon = pos.coords.longitude;
+
+      fetch(`${WEB_APP_URL}?name=${encodeURIComponent(name)}&lat=${lat}&lon=${lon}&project=${encodeURIComponent(project)}`)
+        .then(r => r.text())
+        .then(txt => {
+          document.getElementById("status").innerText = "";
+          document.getElementById("result").innerText = txt;
+        })
+        .catch(err => {
+          document.getElementById("status").innerText = "";
+          document.getElementById("result").innerText = "⚠️ Server error: " + err.message;
+        });
+
+    }, err => {
+      document.getElementById("status").innerText =
+        (err.code === 1) ? "❌ Location permission denied." :
+        (err.code === 2) ? "⚠️ Location unavailable." :
+        "❌ Error getting location."
+    });
+  }
+</script>
+
+</body>
 </html>
+
+
 
 
 
